@@ -1,0 +1,3 @@
+[submodule "datasets/Face-Dataset"]
+	path = datasets/Face-Dataset
+	url = https://github.com/emotion-recognition-reproduce/Face-Dataset.git
