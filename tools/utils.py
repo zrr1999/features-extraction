@@ -3,6 +3,7 @@ from typing import Any
 import torch
 import pickle
 from itertools import product
+from typing import Sequence
 
 def float2int(value: float, max_value: int) -> int:
     return relu(int(max_value * value))
@@ -70,11 +71,13 @@ def calculate_accuracy(model, data_loader):
     return accuracy
 
 
-def get_all_methods():
+def get_all_methods(ignore_methods: Sequence[str]=()):
     detection_methods = ["dlib", "mediapipe"]
-    recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
-    feature_size = {"Facenet": 128, "ArcFace": 512, "OpenFace": 128, "DeepFace": 4096}
+    recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace", "Facenet512", "VGG-Face"]
+    feature_size = {"Facenet": 128, "ArcFace": 512, "OpenFace": 128, "DeepFace": 4096, "Facenet512": 512, "VGG-Face":4096}
 
     for detection_method, recognition_method in product(detection_methods, recognition_methods):
+        if detection_method in ignore_methods or recognition_method in ignore_methods:
+            continue
         yield detection_method, recognition_method, feature_size[recognition_method]
 

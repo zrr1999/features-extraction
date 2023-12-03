@@ -4,6 +4,7 @@ from tools.utils import detect_face, extract_face_features
 import pickle
 import itertools
 from rich.progress import Progress
+from loguru import logger
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
@@ -14,6 +15,10 @@ recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace", "Facenet512
 os.makedirs(features_path, exist_ok=True)
 
 for detection_method, recognition_method in itertools.product(detection_methods, recognition_methods):
+    if os.path.exists(f"{features_path}/{detection_method}_{recognition_method}.pkl"):
+        logger.info(f"skip: {features_path}/{detection_method}_{recognition_method}.pkl exists")
+        continue
+
     data = {}
 
     with Progress() as progress:
