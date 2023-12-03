@@ -8,7 +8,8 @@ from rich.progress import Progress
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
 detection_methods = ["dlib", "mediapipe"]
-recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
+recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace", "Facenet512", "VGG-Face"]
+# recognition_methods = ["DeepID"]
 
 os.makedirs(features_path, exist_ok=True)
 

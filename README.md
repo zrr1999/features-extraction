@@ -14,12 +14,13 @@
 - DeepID
 - ✅ArcFace
 - ✅Facenet
+- ✅Facenet512
 
 ### Facial Feature Recognition
-- VGG-Face
+- ✅VGG-Face
 
 ### Classification
-- Fully Connected Layer
+- ✅Fully Connected Layer
 - VGG-Face
 
 ## 实验
