@@ -2,11 +2,10 @@ import cv2
 from typing import Any
 import torch
 import pickle
-from retinaface import RetinaFace
+from itertools import product
 
 def float2int(value: float, max_value: int) -> int:
     return relu(int(max_value * value))
-
 
 def relu(value: int) -> int:
     return max(value, 0)
@@ -69,3 +68,13 @@ def calculate_accuracy(model, data_loader):
 
     accuracy = 100 * correct / total
     return accuracy
+
+
+def get_all_methods():
+    detection_methods = ["dlib", "mediapipe"]
+    recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
+    feature_size = {"Facenet": 128, "ArcFace": 512, "OpenFace": 128, "DeepFace": 4096}
+
+    for detection_method, recognition_method in product(detection_methods, recognition_methods):
+        yield detection_method, recognition_method, feature_size[recognition_method]
+

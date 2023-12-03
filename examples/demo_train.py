@@ -7,9 +7,6 @@ from tools.utils import load_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
-detection_methods = ["dlib", "mediapipe"]
-recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
-
 class FaceRecognitionModel(torch.nn.Module):
     def __init__(self, feature_size, num_classes):
         super(FaceRecognitionModel, self).__init__()
@@ -23,7 +20,7 @@ class FaceRecognitionModel(torch.nn.Module):
 feature_size = 128 
 num_classes = 130  
 detection_method = "dlib"
-recognition_method = "Facenet" 
+recognition_method = "OpenFace" 
 features_dict = load_features(features_path, detection_method, recognition_method)
 dataset = FaceFeaturesDataset(features_dict)
 data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
