@@ -1,8 +1,8 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
-import pickle
 from rich.progress import Progress, track
-from tools.dataset import load_features, FaceFeaturesDataset
+from tools.dataset import FaceFeaturesDataset
+from tools.utils import load_features
 
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
@@ -48,11 +48,11 @@ with Progress("[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_defaul
 
 
 def calculate_accuracy(model, data_loader):
-    model.eval()  # 将模型设置为评估模式
+    model.eval()
     correct = 0
     total = 0
     
-    with torch.no_grad():  # 在评估阶段不计算梯度
+    with torch.no_grad():
         for features, labels in data_loader:
             outputs = model(features)
             _, predicted = torch.max(outputs.data, 1)  # 获取最大概率的预测结果

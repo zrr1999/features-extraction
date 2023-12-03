@@ -1,5 +1,4 @@
 import cv2
-from typing import Any
 from tools.utils import get_face_by_dlib, get_face_by_mediapipe
 
 def float2int(value: float, max_value: int) -> int:

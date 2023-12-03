@@ -1,9 +1,11 @@
 import cv2
 from typing import Any
-
+import torch
+import pickle
+from retinaface import RetinaFace
 
 def float2int(value: float, max_value: int) -> int:
-    return int(max_value * value)
+    return relu(int(max_value * value))
 
 
 def relu(value: int) -> int:
@@ -26,7 +28,6 @@ def get_face_by_mediapipe(image):
         best_detection = results.detections[0]
         # drawing_utils.draw_detection(image, best_detection)
         box = best_detection.location_data.relative_bounding_box
-        print(box)
         return float2int(box.xmin, image.shape[1]), float2int(box.ymin, image.shape[0]), float2int(box.width, image.shape[1]), float2int(box.height, image.shape[0])
 
 def detect_face(image, detector: str="dlib"):
@@ -47,3 +48,24 @@ def get_example_image():
     dataset_path = "/home/zrr/workspace/face-recognition/datasets"
     input_image = cv2.imread(f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png")
     return input_image
+
+def load_features(features_path, detection_method, recognition_method):
+    file_path = f"{features_path}/{detection_method}_{recognition_method}.pkl"
+    with open(file_path, 'rb') as file:
+        data = pickle.load(file)
+    return data
+
+def calculate_accuracy(model, data_loader):
+    model.eval()
+    correct = 0
+    total = 0
+    
+    with torch.no_grad():
+        for features, labels in data_loader:
+            outputs = model(features)
+            _, predicted = torch.max(outputs.data, 1)  # 获取最大概率的预测结果
+            total += labels.size(0)  # 更新总样本数
+            correct += (predicted == labels).sum().item()  # 更新正确预测的样本数
+
+    accuracy = 100 * correct / total
+    return accuracy

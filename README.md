@@ -8,7 +8,7 @@
 - ✅Mediapipe
 - RetinaFace
 
-### Face Recognition (Extraction)
+### Face Recognition (Feature Extraction)
 - ✅OpenFace
 - ✅DeepFace
 - DeepID
@@ -19,9 +19,11 @@
 - VGG-Face
 
 ### Classification
+- Fully Connected Layer
 - VGG-Face
 
-## Deepface Package
+## 实验
+### Deepface Package
 支持的检测模型：
 - opencv
 - ssd
@@ -39,8 +41,11 @@
 - DeepID
 
 
-## 特征提取
+### 特征提取
 使用每个检测模型和识别模型（特征提取部分）分别提取特征，命名成 `f"{detection_method}_{recognition_method}.pkl"`。
+
+## 结果
+
 
 ## 数据集
 
