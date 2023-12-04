@@ -4,6 +4,8 @@ import torch
 import pickle
 from itertools import product
 from typing import Sequence
+from torch.utils.data import Dataset, DataLoader
+from torch import nn
 
 
 def float2int(value: float, max_value: int) -> int:
@@ -74,14 +76,14 @@ def get_example_image():
     return input_image
 
 
-def load_features(features_path, detection_method, recognition_method):
+def load_features(features_path: str, detection_method:str, recognition_method:str):
     file_path = f"{features_path}/{detection_method}_{recognition_method}.pkl"
     with open(file_path, "rb") as file:
         data = pickle.load(file)
     return data
 
 
-def calculate_accuracy(model, data_loader):
+def calculate_accuracy(model: nn.Module, data_loader: DataLoader):
     model.eval()
     correct = 0
     total = 0
@@ -97,7 +99,7 @@ def calculate_accuracy(model, data_loader):
     return accuracy
 
 
-def calculate_class_weights(data_loader, num_classes=130):
+def calculate_class_weights(data_loader: DataLoader, num_classes: int=130):
     class_counts = [0] * num_classes
 
     for _, labels in data_loader:
@@ -111,7 +113,7 @@ def calculate_class_weights(data_loader, num_classes=130):
 
     return class_weights
 
-def calculate_f1_score(model, data_loader):
+def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
     class_weights = calculate_class_weights(data_loader)
     num_classes = len(class_weights)
     class_f1_scores = [0] * num_classes

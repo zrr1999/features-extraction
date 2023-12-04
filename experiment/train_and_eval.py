@@ -34,11 +34,9 @@ def train_and_eval(
     num_epochs: int,
     detection_method: str,
     recognition_method: str,
-    train_dataset,
-    test_dataset,
+    train_data_loader: DataLoader,
+    test_data_loader: DataLoader,
 ):
-    train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     with Progress(
@@ -98,6 +96,10 @@ for detection_method, recognition_method, feature_size in get_all_methods():
         if os.path.exists(f"checkpoints/{detection_method}_{recognition_method}_{i}.pth"):
             logger.info(f"skip: checkpoints/{detection_method}_{recognition_method}_{i}.pth exists")
             continue
+        
+        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        
         model = FaceRecognitionModel(feature_size, num_classes)
         if use_cuda:
             model = model.cuda()
@@ -106,8 +108,8 @@ for detection_method, recognition_method, feature_size in get_all_methods():
             num_epochs,
             detection_method,
             recognition_method,
-            train_dataset,
-            test_dataset,
+            train_data_loader,
+            test_data_loader,
         )
 
         checkpoint_dir = f"checkpoints/models/{detection_method}_{recognition_method}"
@@ -124,7 +126,8 @@ for detection_method, recognition_method, feature_size in get_all_methods():
         logger.info(
             f"Accuracy in {detection_method}-{recognition_method}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
         )
-        f1_score = calculate_f1_score(model, test_dataset)
+        f1_score = calculate_f1_score(model, 
+                                      test_data_loader)
         mean_f1_score += f1_score
         logger.info(f"F1 Score: {f1_score*100:.2f}")
     mean_accuracy /= 10
