@@ -2,11 +2,12 @@
 
 ## 方法和模型
 ### Face Detection
-- Opencv
-- SSD
-- ✅ Dlib
-- ✅ Mediapipe
-- RetinaFace
+- opencv
+- ssd
+- ✅ dlib
+- mtcnn
+- retinaface
+- ✅ mediapipe
 
 ### Face Recognition (Feature Extraction)
 - ✅ OpenFace
@@ -24,23 +25,6 @@
 - VGG-Face
 
 ## 实验
-### Deepface Package
-支持的检测模型：
-- opencv
-- ssd
-- dlib
-- mtcnn
-- retinaface
-- mediapipe
-
-支持的识别模型：
-- VGG-Face
-- OpenFace
-- Facenet
-- Facenet512
-- DeepFace
-- DeepID
-
 ### 特征提取
 使用每个检测模型和识别模型（特征提取部分）分别提取特征，命名成 `f"{detection_method}_{recognition_method}.pkl"`。
 
@@ -73,5 +57,5 @@ $DATASETS/Face-Dataset/UCEC-Face/subject{i}/subject{i}.{j}.png
 
 
 ## 参考资料
-![实验进程架构图](archetecture.png)
 [Chinese Face Dataset for Face Recognition in an Uncontrolled Classroom Environment](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10210367)
+[Deepface Package](https://github.com/serengil/deepface)
