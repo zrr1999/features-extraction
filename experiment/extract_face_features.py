@@ -34,7 +34,7 @@ for detection_method, recognition_method in itertools.product(
 
     with Progress() as progress:
         task1 = progress.add_task(
-            f"[red]Using {detection_method} and {recognition_method}...", total=131
+            f"[red]Using {detection_method} and {recognition_method} to generate pkl", total=131
         )
         for i in range(1, 131):
             progress.update(task1, advance=1)
@@ -53,6 +53,8 @@ for detection_method, recognition_method in itertools.product(
                         face_image, model_name=recognition_method
                     )
                     data[(i, j)] = (image_path, features)
+                else:
+                    logger.warning(f"no face detected: {image_path}")
 
     with open(
         f"{features_path}/{detection_method}_{recognition_method}.pkl", "wb"

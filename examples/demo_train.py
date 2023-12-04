@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 from rich.progress import Progress
 from tools.dataset import FaceFeaturesDataset
 from tools.utils import load_features
+from tools.utils import calculate_accuracy, calculate_f1_score
 
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
@@ -52,21 +53,7 @@ with Progress(
         progress.update(task, advance=1, loss_value=sum(loss_values) / len(loss_values))
 
 
-def calculate_accuracy(model, data_loader):
-    model.eval()
-    correct = 0
-    total = 0
-
-    with torch.no_grad():
-        for features, labels in data_loader:
-            outputs = model(features)
-            _, predicted = torch.max(outputs.data, 1)  # 获取最大概率的预测结果
-            total += labels.size(0)  # 更新总样本数
-            correct += (predicted == labels).sum().item()  # 更新正确预测的样本数
-
-    accuracy = 100 * correct / total
-    return accuracy
-
-
-test_accuracy = calculate_accuracy(model, data_loader)
-print(f"Test Accuracy: {test_accuracy:.2f}%")
+        test_accuracy = calculate_accuracy(model, data_loader)
+        print(f"Test Accuracy: {test_accuracy:.2f}%")
+        f1_score = calculate_f1_score(model, data_loader)
+        print(f"F1 Score: {f1_score*100:.2f}")

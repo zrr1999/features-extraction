@@ -97,6 +97,51 @@ def calculate_accuracy(model, data_loader):
     return accuracy
 
 
+def calculate_class_weights(data_loader, num_classes=130):
+    class_counts = [0] * num_classes
+
+    for _, labels in data_loader:
+        for i in range(num_classes):
+            class_counts[i] += (labels == i).sum().item()
+    
+    total_samples = sum(class_counts)
+    class_weights = []
+    for i in range(num_classes):
+        class_weights.append(class_counts[i] / total_samples)
+
+    return class_weights
+
+def calculate_f1_score(model, data_loader):
+    class_weights = calculate_class_weights(data_loader)
+    num_classes = len(class_weights)
+    class_f1_scores = [0] * num_classes
+    class_counts = [0] * num_classes
+
+    for features, labels in data_loader:
+        outputs = model(features)
+        _, predicted = torch.max(outputs.data, 1)
+
+        for i in range(num_classes):
+            true_positives = ((predicted == i) & (labels == i)).sum().item()
+            false_positives = ((predicted == i) & (labels != i)).sum().item()
+            false_negatives = ((predicted != i) & (labels == i)).sum().item()
+
+            precision = true_positives / (true_positives + false_positives + 1e-10)
+            recall = true_positives / (true_positives + false_negatives + 1e-10)
+
+            f1_score = 2 * (precision * recall) / (precision + recall + 1e-10)
+
+            class_f1_scores[i] += f1_score
+            class_counts[i] += 1
+
+    weighted_f1_score = 0
+
+    for i in range(num_classes):
+        class_weight = class_weights[i]
+        class_f1 = class_f1_scores[i] / class_counts[i]
+        weighted_f1_score += class_weight * class_f1
+    return weighted_f1_score
+
 def get_all_methods(ignore_methods: Sequence[str] = ()):
     detection_methods = ["dlib", "mediapipe"]
     recognition_methods = [
@@ -113,7 +158,7 @@ def get_all_methods(ignore_methods: Sequence[str] = ()):
         "OpenFace": 128,
         "DeepFace": 4096,
         "Facenet512": 512,
-        "VGG-Face": 4096,
+        "VGG-Face": 2622,
     }
 
     for detection_method, recognition_method in product(
