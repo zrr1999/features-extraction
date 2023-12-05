@@ -50,7 +50,7 @@ jobs:
       - name: Upload PDF file 👷‍♂️
         uses: actions/upload-artifact@v3
         with:
-          name: PDF
+          name: report
           path: reports/main.pdf
 
       - name: Publish GitHub Release 📝
