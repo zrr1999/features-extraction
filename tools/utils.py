@@ -1,11 +1,13 @@
-import cv2
-from typing import Any
-import torch
+from __future__ import annotations
+
 import pickle
 from itertools import product
-from typing import Sequence
-from torch.utils.data import Dataset, DataLoader
+from typing import Any, Sequence
+
+import cv2
+import torch
 from torch import nn
+from torch.utils.data import DataLoader, Dataset
 
 
 def float2int(value: float, max_value: int) -> int:
@@ -19,7 +21,7 @@ def relu(value: int) -> int:
 def get_face_by_dlib(image):
     import dlib
 
-    detector = dlib.get_frontal_face_detector()  # type: ignore
+    detector = dlib.get_frontal_face_detector()  # type: ignore  # noqa: PGH003
     faces = detector(image)
     if faces:
         best_face = faces[0]
@@ -62,21 +64,17 @@ def extract_face_features(image, model_name: str = "Facenet"):
     from deepface import DeepFace
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    face_features = DeepFace.represent(
-        image, model_name=model_name, detector_backend="skip"
-    )
+    face_features = DeepFace.represent(image, model_name=model_name, detector_backend="skip")
     return face_features[0]["embedding"]
 
 
 def get_example_image():
     dataset_path = "/home/zrr/workspace/face-recognition/datasets"
-    input_image = cv2.imread(
-        f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png"
-    )
+    input_image = cv2.imread(f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png")
     return input_image
 
 
-def load_features(features_path: str, detection_method:str, recognition_method:str):
+def load_features(features_path: str, detection_method: str, recognition_method: str):
     file_path = f"{features_path}/{detection_method}_{recognition_method}.pkl"
     with open(file_path, "rb") as file:
         data = pickle.load(file)
@@ -99,19 +97,20 @@ def calculate_accuracy(model: nn.Module, data_loader: DataLoader):
     return accuracy
 
 
-def calculate_class_weights(data_loader: DataLoader, num_classes: int=130):
+def calculate_class_weights(data_loader: DataLoader, num_classes: int = 130):
     class_counts = [0] * num_classes
 
     for _, labels in data_loader:
         for i in range(num_classes):
             class_counts[i] += (labels == i).sum().item()
-    
+
     total_samples = sum(class_counts)
     class_weights = []
     for i in range(num_classes):
         class_weights.append(class_counts[i] / total_samples)
 
     return class_weights
+
 
 def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
     class_weights = calculate_class_weights(data_loader)
@@ -144,6 +143,7 @@ def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
         weighted_f1_score += class_weight * class_f1
     return 100 * weighted_f1_score
 
+
 def get_all_methods(ignore_methods: Sequence[str] = ()):
     detection_methods = ["dlib", "mediapipe"]
     recognition_methods = [
@@ -163,9 +163,7 @@ def get_all_methods(ignore_methods: Sequence[str] = ()):
         "VGG-Face": 2622,
     }
 
-    for detection_method, recognition_method in product(
-        detection_methods, recognition_methods
-    ):
+    for detection_method, recognition_method in product(detection_methods, recognition_methods):
         if detection_method in ignore_methods or recognition_method in ignore_methods:
             continue
         yield detection_method, recognition_method, feature_size[recognition_method]

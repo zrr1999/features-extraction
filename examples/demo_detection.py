@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import cv2
+
 from tools.utils import get_face_by_dlib, get_face_by_mediapipe
 
 
@@ -7,9 +10,7 @@ def float2int(value: float, max_value: int) -> int:
 
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets"
-input_image = cv2.imread(
-    f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png"
-)
+input_image = cv2.imread(f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png")
 output_image = input_image.copy()
 
 

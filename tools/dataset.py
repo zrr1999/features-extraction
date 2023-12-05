@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import torch
-from torch.utils.data import Dataset
-from torch.utils.data import Subset, ConcatDataset
+from torch.utils.data import ConcatDataset, Dataset, Subset
 
 
 class FaceFeaturesDataset(Dataset):
@@ -12,13 +13,9 @@ class FaceFeaturesDataset(Dataset):
     def __getitem__(self, index):
         (label, _), (_, features) = self.items[index]
         if self.use_cuda:
-            return torch.tensor(features, dtype=torch.float32).cuda(), torch.tensor(
-                label, dtype=torch.int64
-            ).cuda() - 1
+            return torch.tensor(features, dtype=torch.float32).cuda(), torch.tensor(label, dtype=torch.int64).cuda() - 1
         else:
-            return torch.tensor(features, dtype=torch.float32), torch.tensor(
-                label, dtype=torch.int64
-            ) - 1
+            return torch.tensor(features, dtype=torch.float32), torch.tensor(label, dtype=torch.int64) - 1
 
     def __len__(self):
         return len(self.items)
@@ -30,9 +27,7 @@ def split_dataset(dataset, *, folds=10):
     for i in range(folds):
         # 生成当前折的测试集和训练集的索引
         test_indices = list(range(i * single_split_size, (i + 1) * single_split_size))
-        train_indices = list(range(0, i * single_split_size)) + list(
-            range((i + 1) * single_split_size, dataset_size)
-        )
+        train_indices = list(range(0, i * single_split_size)) + list(range((i + 1) * single_split_size, dataset_size))
 
         # 根据索引创建数据子集
         train_subset = Subset(dataset, train_indices)
@@ -53,9 +48,7 @@ def split_dataset_by_class(dataset, num_classes=130, *, folds=10):
             subset_size = len(class_subset)
             single_split_size = subset_size // folds
 
-            test_indices = list(
-                range(i * single_split_size, (i + 1) * single_split_size)
-            )
+            test_indices = list(range(i * single_split_size, (i + 1) * single_split_size))
             train_indices = list(range(0, i * single_split_size)) + list(
                 range((i + 1) * single_split_size, subset_size)
             )

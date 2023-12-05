@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import torch
+from rich.progress import Progress
 from torch import nn
 from torch.utils.data import DataLoader
-from rich.progress import Progress
+
 from tools.dataset import FaceFeaturesDataset, split_dataset_by_class
-from tools.utils import load_features, calculate_accuracy
+from tools.utils import calculate_accuracy, load_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
@@ -34,18 +37,14 @@ recognition_method = "Facenet"
 features_dict = load_features(features_path, detection_method, recognition_method)
 
 
-for i, (train_dataset, test_dataset) in enumerate(
-    split_dataset_by_class(FaceFeaturesDataset(features_dict), folds=10)
-):
+for i, (train_dataset, test_dataset) in enumerate(split_dataset_by_class(FaceFeaturesDataset(features_dict), folds=10)):
     train_data_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
     test_data_loader = DataLoader(test_dataset, batch_size=128, shuffle=False)
     model = FaceRecognitionModel(feature_size, num_classes)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     num_epochs = 100
-    with Progress(
-        "[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()
-    ) as progress:
+    with Progress("[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()) as progress:
         task = progress.add_task(
             f"[green]Using {detection_method} and {recognition_method}...",
             total=num_epochs,
@@ -60,9 +59,7 @@ for i, (train_dataset, test_dataset) in enumerate(
                 loss.backward()
                 optimizer.step()
                 loss_values.append(loss.item())
-            progress.update(
-                task, advance=1, loss_value=sum(loss_values) / len(loss_values)
-            )
+            progress.update(task, advance=1, loss_value=sum(loss_values) / len(loss_values))
 
             if epoch % 50 == 0:
                 train_accuracy = calculate_accuracy(model, train_data_loader)

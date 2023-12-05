@@ -1,14 +1,19 @@
-import torch
-from torch import nn
-from torch.utils.data import DataLoader
-from rich.progress import Progress
-from tools.dataset import FaceFeaturesDataset, split_dataset_by_class
-from tools.utils import load_features, calculate_accuracy, get_all_methods, calculate_f1_score
-from loguru import logger
-from models.simple import FaceRecognitionModel
+from __future__ import annotations
+
 import os
 
+import torch
+from loguru import logger
+from rich.progress import Progress
+from torch import nn
+from torch.utils.data import DataLoader
+
+from models.simple import FaceRecognitionModel
+from tools.dataset import FaceFeaturesDataset, split_dataset_by_class
+from tools.utils import calculate_accuracy, calculate_f1_score, get_all_methods, load_features
+
 logger.add("logs/train_and_eval.log", rotation="10 MB")
+
 
 class EarlyStopper:
     def __init__(self, patience: int = 10):
@@ -22,7 +27,7 @@ class EarlyStopper:
             if value > self.best_scores[key][0]:
                 self.best_scores[key] = (value, self.best_scores[key][1])
             else:
-                self.best_scores[key] = (self.best_scores[key][0], self.best_scores[key][1]+1)
+                self.best_scores[key] = (self.best_scores[key][0], self.best_scores[key][1] + 1)
                 if self.best_scores[key][1] >= self.patience:
                     logger.info(f"Early stopping by {key}!")
                     return True
@@ -37,13 +42,10 @@ def train_and_eval(
     train_data_loader: DataLoader,
     test_data_loader: DataLoader,
 ):
-
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    with Progress(
-        "[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()
-    ) as progress:
+    with Progress("[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()) as progress:
         stopper = EarlyStopper(5)
-        
+
         task = progress.add_task(
             f"[green]Using {detection_method} and {recognition_method} pkl to train",
             total=num_epochs,
@@ -73,7 +75,7 @@ def train_and_eval(
 
 
 num_epochs = 10000
-batch_size = 4096*4
+batch_size = 4096 * 4
 num_classes = 130
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
@@ -89,17 +91,15 @@ for detection_method, recognition_method, feature_size in get_all_methods():
     mean_accuracy = 0
     mean_f1_score = 0
     for i, (train_dataset, test_dataset) in enumerate(
-        split_dataset_by_class(
-            FaceFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10
-        )
+        split_dataset_by_class(FaceFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10)
     ):
         if os.path.exists(f"checkpoints/{detection_method}_{recognition_method}_{i}.pth"):
             logger.info(f"skip: checkpoints/{detection_method}_{recognition_method}_{i}.pth exists")
             continue
-        
+
         train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-        
+
         model = FaceRecognitionModel(feature_size, num_classes)
         if use_cuda:
             model = model.cuda()
@@ -118,23 +118,18 @@ for detection_method, recognition_method, feature_size in get_all_methods():
             model,
             f"{checkpoint_dir}/{i}.pth",
         )
-        logger.info(
-            f"Model saved: {checkpoint_dir}/{i}.pth"
-        )
+        logger.info(f"Model saved: {checkpoint_dir}/{i}.pth")
 
         mean_accuracy += test_accuracy
         logger.info(
             f"Accuracy in {detection_method}-{recognition_method}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
         )
-        f1_score = calculate_f1_score(model, 
-                                      test_data_loader)
+        f1_score = calculate_f1_score(model, test_data_loader)
         mean_f1_score += f1_score
         logger.info(f"F1 Score: {f1_score:.2f}")
     mean_accuracy /= 10
     mean_f1_score /= 10
-    logger.info(
-        f"Mean Accuracy in {detection_method}-{recognition_method}: {mean_accuracy:.2f}%"
-    )
+    logger.info(f"Mean Accuracy in {detection_method}-{recognition_method}: {mean_accuracy:.2f}%")
     mean_accuracies[(detection_method, recognition_method)] = mean_accuracy
     mean_f1_scores[(detection_method, recognition_method)] = mean_f1_score
 

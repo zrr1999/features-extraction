@@ -1,10 +1,11 @@
-import torch
-from torch.utils.data import DataLoader
-from rich.progress import Progress
-from tools.dataset import FaceFeaturesDataset
-from tools.utils import load_features
-from tools.utils import calculate_accuracy, calculate_f1_score
+from __future__ import annotations
 
+import torch
+from rich.progress import Progress
+from torch.utils.data import DataLoader
+
+from tools.dataset import FaceFeaturesDataset
+from tools.utils import calculate_accuracy, calculate_f1_score, load_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
@@ -33,15 +34,13 @@ criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 num_epochs = 1000
-with Progress(
-    "[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()
-) as progress:
+with Progress("[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()) as progress:
     task = progress.add_task(
         f"[green]Using {detection_method} and {recognition_method}...",
         total=num_epochs,
         loss_value=-1,
     )
-    for epoch in range(num_epochs):
+    for _ in range(num_epochs):
         loss_values = []
         for features, labels in data_loader:
             optimizer.zero_grad()
@@ -51,7 +50,6 @@ with Progress(
             optimizer.step()
             loss_values.append(loss.item())
         progress.update(task, advance=1, loss_value=sum(loss_values) / len(loss_values))
-
 
         test_accuracy = calculate_accuracy(model, data_loader)
         print(f"Test Accuracy: {test_accuracy:.2f}%")

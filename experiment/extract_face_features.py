@@ -1,10 +1,14 @@
-import os
-import cv2
-from tools.utils import detect_face, extract_face_features
-import pickle
+from __future__ import annotations
+
 import itertools
-from rich.progress import Progress
+import os
+import pickle
+
+import cv2
 from loguru import logger
+from rich.progress import Progress
+
+from tools.utils import detect_face, extract_face_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
@@ -21,21 +25,15 @@ recognition_methods = [
 
 os.makedirs(features_path, exist_ok=True)
 
-for detection_method, recognition_method in itertools.product(
-    detection_methods, recognition_methods
-):
+for detection_method, recognition_method in itertools.product(detection_methods, recognition_methods):
     if os.path.exists(f"{features_path}/{detection_method}_{recognition_method}.pkl"):
-        logger.info(
-            f"skip: {features_path}/{detection_method}_{recognition_method}.pkl exists"
-        )
+        logger.info(f"skip: {features_path}/{detection_method}_{recognition_method}.pkl exists")
         continue
 
     data = {}
 
     with Progress() as progress:
-        task1 = progress.add_task(
-            f"[red]Using {detection_method} and {recognition_method} to generate pkl", total=131
-        )
+        task1 = progress.add_task(f"[red]Using {detection_method} and {recognition_method} to generate pkl", total=131)
         for i in range(1, 131):
             progress.update(task1, advance=1)
             subject_path = f"{dataset_path}/subject{i}"
@@ -49,20 +47,14 @@ for detection_method, recognition_method in itertools.product(
                 if face:
                     x, y, w, h = face
                     face_image = input_image[y : y + h, x : x + w]
-                    features = extract_face_features(
-                        face_image, model_name=recognition_method
-                    )
+                    features = extract_face_features(face_image, model_name=recognition_method)
                     data[(i, j)] = (image_path, features)
                 else:
                     logger.warning(f"no face detected: {image_path}")
 
-    with open(
-        f"{features_path}/{detection_method}_{recognition_method}.pkl", "wb"
-    ) as file:
+    with open(f"{features_path}/{detection_method}_{recognition_method}.pkl", "wb") as file:
         pickle.dump(data, file)
 
-    with open(
-        f"{features_path}/{detection_method}_{recognition_method}.pkl", "rb"
-    ) as file:
+    with open(f"{features_path}/{detection_method}_{recognition_method}.pkl", "rb") as file:
         loaded_data = pickle.load(file)
         assert data == loaded_data
