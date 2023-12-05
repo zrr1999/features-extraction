@@ -129,7 +129,7 @@ for detection_method, recognition_method, feature_size in get_all_methods():
         f1_score = calculate_f1_score(model, 
                                       test_data_loader)
         mean_f1_score += f1_score
-        logger.info(f"F1 Score: {f1_score*100:.2f}")
+        logger.info(f"F1 Score: {f1_score:.2f}")
     mean_accuracy /= 10
     mean_f1_score /= 10
     logger.info(

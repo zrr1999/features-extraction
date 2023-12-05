@@ -57,5 +57,5 @@ $DATASETS/Face-Dataset/UCEC-Face/subject{i}/subject{i}.{j}.png
 
 
 ## 参考资料
-[Chinese Face Dataset for Face Recognition in an Uncontrolled Classroom Environment](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10210367)
-[Deepface Package](https://github.com/serengil/deepface)
+- [Chinese Face Dataset for Face Recognition in an Uncontrolled Classroom Environment](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10210367)
+- [Deepface Package](https://github.com/serengil/deepface)

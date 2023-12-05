@@ -142,7 +142,7 @@ def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
         class_weight = class_weights[i]
         class_f1 = class_f1_scores[i] / class_counts[i]
         weighted_f1_score += class_weight * class_f1
-    return weighted_f1_score
+    return 100 * weighted_f1_score
 
 def get_all_methods(ignore_methods: Sequence[str] = ()):
     detection_methods = ["dlib", "mediapipe"]
