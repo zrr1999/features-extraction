@@ -12,13 +12,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Typst
+      - name: Setup Typst 📦
         uses: yusancky/setup-typst@v2
         id: setup-typst
         with:
           version: 'v0.9.0'
 
-      - name: Clone BoneDocument/BoneDocument
+      - name: Clone BoneDocument/BoneDocument 📦
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
         with:
           depth: 1
@@ -26,7 +26,7 @@ jobs:
           owner: 'BoneDocument'
           repository: 'BoneDocument'
 
-      - name: Clone BoneDocument/fonts
+      - name: Clone BoneDocument/fonts 📦
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
         with:
           depth: 1
@@ -38,17 +38,23 @@ jobs:
         id: date
         run: echo "DATE=$(date +%Y-%m-%d)" >> $GITHUB_ENV
 
-      - name: Install Typst Packages
+      - name: Install Typst Packages 📦
         run: |
           mkdir -p ~/.local/share/typst/packages/local/bone-document/
           ln -s $(pwd)/BoneDocument ~/.local/share/typst/packages/local/bone-document/0.1.0
 
-      - name: Compile typst files
+      - name: Compile typst files 👷‍♂️
         run: |
           typst compile --font-path="./fonts/" reports/main.typ
 
-      - name: Upload PDF file
+      - name: Upload PDF file 👷‍♂️
         uses: actions/upload-artifact@v3
         with:
           name: PDF
           path: reports/main.pdf
+
+      - name: Publish GitHub Release 📝
+        uses: softprops/action-gh-release@v1
+        with:
+          name: face-recognition ${{github.ref_name}}
+          generate_release_notes: true
