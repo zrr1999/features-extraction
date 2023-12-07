@@ -5,3 +5,6 @@ checkpoints/
 logs/
 
 *.pdf
+
+Justfile
+main.sh

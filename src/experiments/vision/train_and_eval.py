@@ -8,9 +8,10 @@ from rich.progress import Progress
 from torch import nn
 from torch.utils.data import DataLoader
 
-from models.simple import FaceRecognitionModel
-from tools.dataset import FaceFeaturesDataset, split_dataset_by_class
-from tools.utils import calculate_accuracy, calculate_f1_score, get_all_methods, load_features
+from dataset.face import FaceFeaturesDataset
+from dataset.utils import split_dataset_by_class
+from model.simple import FaceRecognitionModel
+from utils import calculate_accuracy, calculate_f1_score, get_all_methods, load_features
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
 

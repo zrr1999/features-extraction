@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import cv2
-
 from tools.utils import extract_face_features, get_face_by_dlib
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets"

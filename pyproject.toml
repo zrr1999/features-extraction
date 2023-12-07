@@ -18,6 +18,7 @@ Repository = "https://github.com/zrr1999/face-recognition.git"
 [tool.ruff]
 line-length = 120
 target-version = "py39"
+src = ["src"]
 
 [tool.ruff.lint]
 select = [
@@ -38,6 +39,9 @@ required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "I002"]
+
+[tool.pdm.build]
+package-dir = "src"
 
 [build-system]
 requires = ["pdm-backend"]

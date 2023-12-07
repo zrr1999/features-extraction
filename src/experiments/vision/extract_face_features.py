@@ -8,7 +8,7 @@ import cv2
 from loguru import logger
 from rich.progress import Progress
 
-from tools.utils import detect_face, extract_face_features
+from utils import detect_face, extract_face_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"

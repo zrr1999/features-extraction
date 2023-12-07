@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import cv2
-
 from tools.utils import get_face_by_dlib, get_face_by_mediapipe
 
 
