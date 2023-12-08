@@ -8,24 +8,14 @@ import cv2
 from loguru import logger
 from rich.progress import Progress
 
-from utils import detect_face, extract_face_features
+from vision.utils import detect_face, extract_face_features, get_all_vision_methods
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
-detection_methods = ["dlib", "mediapipe"]
-recognition_methods = [
-    "Facenet",
-    "ArcFace",
-    "OpenFace",
-    "DeepFace",
-    "Facenet512",
-    "VGG-Face",
-]
-# recognition_methods = ["DeepID"]
 
 os.makedirs(features_path, exist_ok=True)
 
-for detection_method, recognition_method in itertools.product(detection_methods, recognition_methods):
+for detection_method, recognition_method, _ in get_all_vision_methods():
     if os.path.exists(f"{features_path}/{detection_method}_{recognition_method}.pkl"):
         logger.info(f"skip: {features_path}/{detection_method}_{recognition_method}.pkl exists")
         continue

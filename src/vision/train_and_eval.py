@@ -11,7 +11,8 @@ from torch.utils.data import DataLoader
 from dataset.face import FaceFeaturesDataset
 from dataset.utils import split_dataset_by_class
 from model.simple import FaceRecognitionModel
-from utils import calculate_accuracy, calculate_f1_score, get_all_methods, load_features
+from utils import calculate_accuracy, calculate_f1_score, load_features
+from vision.utils import get_all_vision_methods
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
 
@@ -87,7 +88,7 @@ if use_cuda:
     criterion = criterion.cuda()
 mean_accuracies = {}
 mean_f1_scores = {}
-for detection_method, recognition_method, feature_size in get_all_methods():
+for detection_method, recognition_method, feature_size in get_all_vision_methods():
     features_dict = load_features(features_path, detection_method, recognition_method)
     mean_accuracy = 0
     mean_f1_score = 0

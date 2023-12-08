@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import torch
 from rich.progress import Progress
-from tools.dataset import FaceFeaturesDataset, split_dataset_by_class
-from tools.utils import calculate_accuracy, load_features
 from torch import nn
 from torch.utils.data import DataLoader
+
+from dataset.face import FaceFeaturesDataset
+from dataset.utils import split_dataset_by_class
+from utils import calculate_accuracy, load_features
 
 dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
 features_path = "/home/zrr/workspace/face-recognition/datasets/features"
