@@ -4,7 +4,7 @@ import cv2
 
 from vision.utils import extract_face_features, get_face_by_dlib
 
-dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets"
+dataset_path = "./datasets"
 input_image = cv2.imread(f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png")
 output_image = input_image.copy()
 

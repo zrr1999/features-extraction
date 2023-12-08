@@ -7,8 +7,8 @@ from torch.utils.data import DataLoader
 from dataset.face import FaceFeaturesDataset
 from utils import calculate_accuracy, calculate_f1_score, load_features
 
-dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/Face-Dataset/UCEC-Face"
-features_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/features/vision"
+dataset_path = "./datasets/Face-Dataset/UCEC-Face"
+features_path = "./datasets/features/vision"
 
 
 class FaceRecognitionModel(torch.nn.Module):

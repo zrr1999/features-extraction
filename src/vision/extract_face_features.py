@@ -10,8 +10,8 @@ from rich.progress import Progress
 
 from vision.utils import detect_face, extract_face_features, get_all_vision_methods
 
-dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/Face-Dataset/UCEC-Face"
-features_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/features/vision"
+dataset_path = "./datasets/Face-Dataset/UCEC-Face"
+features_path = "./datasets/features/vision"
 
 os.makedirs(features_path, exist_ok=True)
 
