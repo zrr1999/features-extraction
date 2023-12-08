@@ -1,15 +1,35 @@
 [project]
 name = "face-recognition"
-version = "0.0.0"
+version = "0.1.0"
 description = ""
 authors = [
     {name = "Zhan Rongrui", email = "2742392377@qq.com"},
 ]
 dependencies = [
+  "loguru",
+  "rich",
+  "torch",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
+
+[project.optional-dependencies]
+vision = [
+  "dlib",
+  "mediapipe",
+  "deepface"
+]
+audio = [
+
+]
+text = [
+
+]
+
+all = [
+  "face-recognition[vision,audio,text]"
+]
 
 [project.urls]
 Homepage = "https://pypi.org/project/face-recognition"
