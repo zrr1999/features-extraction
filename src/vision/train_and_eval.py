@@ -79,8 +79,8 @@ def train_and_eval(
 num_epochs = 10000
 batch_size = 4096 * 4
 num_classes = 130
-dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
-features_path = "/home/zrr/workspace/face-recognition/datasets/features"
+dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/Face-Dataset/UCEC-Face"
+features_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/features/vision"
 use_cuda = True
 
 criterion = nn.CrossEntropyLoss()

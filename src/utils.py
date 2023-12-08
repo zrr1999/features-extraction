@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, Dataset
 
 
 def get_example_image():
-    dataset_path = "/home/zrr/workspace/face-recognition/datasets"
+    dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets"
     input_image = cv2.imread(f"{dataset_path}/Face-Dataset/UCEC-Face/subject1/subject1.4.png")
     return input_image
 

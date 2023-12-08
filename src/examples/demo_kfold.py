@@ -9,8 +9,8 @@ from dataset.face import FaceFeaturesDataset
 from dataset.utils import split_dataset_by_class
 from utils import calculate_accuracy, load_features
 
-dataset_path = "/home/zrr/workspace/face-recognition/datasets/Face-Dataset/UCEC-Face"
-features_path = "/home/zrr/workspace/face-recognition/datasets/features"
+dataset_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/Face-Dataset/UCEC-Face"
+features_path = "/home/zrr/workspace/emotion-reproduce/features-extraction/datasets/features/vision"
 detection_methods = ["dlib", "mediapipe"]
 recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
 
