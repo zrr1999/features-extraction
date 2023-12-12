@@ -56,5 +56,5 @@ jobs:
       - name: Publish GitHub Release 📝
         uses: softprops/action-gh-release@v1
         with:
-          name: "视觉模态特征提取研究情况报告——${{ env.DATE }}"
+          name: "多模态特征提取研究情况报告——${{ env.DATE }}"
           files: reports/main.pdf
