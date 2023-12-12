@@ -5,9 +5,9 @@ from rich.progress import Progress
 from torch import nn
 from torch.utils.data import DataLoader
 
-from dataset.face import FaceFeaturesDataset
-from dataset.utils import split_dataset_by_class
-from utils import calculate_accuracy, load_features
+from extractor.dataset.face import FaceFeaturesDataset
+from extractor.dataset.utils import split_dataset_by_class
+from extractor.utils import calculate_accuracy, load_features
 
 dataset_path = "./datasets/Face-Dataset/UCEC-Face"
 features_path = "./datasets/features/vision"

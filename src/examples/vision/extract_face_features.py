@@ -8,7 +8,7 @@ import cv2
 from loguru import logger
 from rich.progress import Progress
 
-from vision.utils import detect_face, extract_face_features, get_all_vision_methods
+from extractor.vision.utils import detect_face, extract_face_features, get_all_vision_methods
 
 dataset_path = "./datasets/Face-Dataset/UCEC-Face"
 features_path = "./datasets/features/vision"

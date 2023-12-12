@@ -8,32 +8,13 @@ from rich.progress import Progress
 from torch import nn
 from torch.utils.data import DataLoader
 
-from dataset.face import FaceFeaturesDataset
-from dataset.utils import split_dataset_by_class
-from model.simple import FaceRecognitionModel
-from utils import calculate_accuracy, calculate_f1_score, load_features
-from vision.utils import get_all_vision_methods
+from extractor.dataset.face import FaceFeaturesDataset
+from extractor.dataset.utils import split_dataset_by_class
+from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
+from extractor.vision.utils import get_all_vision_methods
+from model.simple import SimpleModel
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
-
-
-class EarlyStopper:
-    def __init__(self, patience: int = 10):
-        self.patience = patience
-        self.best_scores = {}
-
-    def update(self, **kwargs: float):
-        for key, value in kwargs.items():
-            if key not in self.best_scores:
-                self.best_scores[key] = (float("-inf"), 0)
-            if value > self.best_scores[key][0]:
-                self.best_scores[key] = (value, self.best_scores[key][1])
-            else:
-                self.best_scores[key] = (self.best_scores[key][0], self.best_scores[key][1] + 1)
-                if self.best_scores[key][1] >= self.patience:
-                    logger.info(f"Early stopping by {key}!")
-                    return True
-        return False
 
 
 def train_and_eval(
@@ -89,7 +70,7 @@ if use_cuda:
 mean_accuracies = {}
 mean_f1_scores = {}
 for detection_method, recognition_method, feature_size in get_all_vision_methods():
-    features_dict = load_features(features_path, detection_method, recognition_method)
+    features_dict = load_features(features_path, f"{detection_method}_{recognition_method}")
     mean_accuracy = 0
     mean_f1_score = 0
     for i, (train_dataset, test_dataset) in enumerate(
@@ -102,7 +83,7 @@ for detection_method, recognition_method, feature_size in get_all_vision_methods
         train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-        model = FaceRecognitionModel(feature_size, num_classes)
+        model = SimpleModel(feature_size, num_classes)
         if use_cuda:
             model = model.cuda()
         train_accuracy, test_accuracy = train_and_eval(

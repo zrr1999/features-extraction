@@ -6,6 +6,7 @@ from typing import Any, Sequence
 
 import cv2
 import torch
+from loguru import logger
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
@@ -16,8 +17,8 @@ def get_example_image():
     return input_image
 
 
-def load_features(features_path: str, detection_method: str, recognition_method: str):
-    file_path = f"{features_path}/{detection_method}_{recognition_method}.pkl"
+def load_features(features_path: str, name: str):
+    file_path = f"{features_path}/{name}.pkl"
     with open(file_path, "rb") as file:
         data = pickle.load(file)
     return data
@@ -84,3 +85,22 @@ def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
         class_f1 = class_f1_scores[i] / class_counts[i]
         weighted_f1_score += class_weight * class_f1
     return 100 * weighted_f1_score
+
+
+class EarlyStopper:
+    def __init__(self, patience: int = 10):
+        self.patience = patience
+        self.best_scores = {}
+
+    def update(self, **kwargs: float):
+        for key, value in kwargs.items():
+            if key not in self.best_scores:
+                self.best_scores[key] = (float("-inf"), 0)
+            if value > self.best_scores[key][0]:
+                self.best_scores[key] = (value, self.best_scores[key][1])
+            else:
+                self.best_scores[key] = (self.best_scores[key][0], self.best_scores[key][1] + 1)
+                if self.best_scores[key][1] >= self.patience:
+                    logger.info(f"Early stopping by {key}!")
+                    return True
+        return False

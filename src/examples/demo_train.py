@@ -4,8 +4,8 @@ import torch
 from rich.progress import Progress
 from torch.utils.data import DataLoader
 
-from dataset.face import FaceFeaturesDataset
-from utils import calculate_accuracy, calculate_f1_score, load_features
+from extractor.dataset.face import FaceFeaturesDataset
+from extractor.utils import calculate_accuracy, calculate_f1_score, load_features
 
 dataset_path = "./datasets/Face-Dataset/UCEC-Face"
 features_path = "./datasets/features/vision"
