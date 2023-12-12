@@ -50,12 +50,52 @@ def get_face_by_mediapipe(image):
             float2int(box.height, image.shape[0]),
         )
 
+def get_face_by_ssd(image):
+    # 加载预训练的 SSD 模型
+    import numpy as np
+    model_file = './ssd/res10_300x300_ssd_iter_140000.caffemodel'
+    config_file = './ssd/deploy.prototxt'
+    model = cv2.dnn.readNetFromCaffe(config_file,model_file )
+    height, width = image.shape[:2]
+    # 构建输入图像的 blob
+    blob = cv2.dnn.blobFromImage(cv2.resize(image, (300, 300)), 1.0, (300, 300), (104.0, 117.0, 123.0))
+    # 设置模型输入
+    model.setInput(blob)
+    # 进行推理
+    detections = model.forward()
+    # 提取人脸检测结果
+    face_coords = []
+    for i in range(detections.shape[2]):
+        confidence = detections[0, 0, i, 2]
+        if confidence > 0.5:  # 设置置信度阈值
+            box = detections[0, 0, i, 3:7] * np.array([width, height, width, height])
+            x, y, x1, y1 = box.astype(int)  #左上角和右下角坐标
+    #print(f"Detected face coordinates: x={x}, y={y}, width={w-x}, height={h-y}")
+            return (x, y, x1 - x, y1 - y)
+
+
+def get_face_by_mtcnn(image):
+    from mtcnn import MTCNN
+    detector = MTCNN()
+    faces = detector.detect_faces(image)
+    #print ("-------------------")
+    if faces:
+        best_face = faces[0]['box']  
+        x, y, w, h = best_face
+        #print(f"Detected face coordinates: x={x}, y={y}, width={w}, height={h}")
+        return x, y, w, h
+    
+
 
 def detect_face(image, detector: str = "dlib"):
     if detector == "dlib":
         return get_face_by_dlib(image)
     elif detector == "mediapipe":
         return get_face_by_mediapipe(image)
+    elif detector == "mtcnn":
+        return get_face_by_mtcnn(image)
+    elif detector == "ssd":
+        return get_face_by_ssd(image)
     else:
         raise ValueError(f"Unknown detector: {detector}")
 
@@ -69,7 +109,7 @@ def extract_face_features(image, model_name: str = "Facenet"):
 
 
 def get_all_vision_methods(ignore_methods: Sequence[str] = ()):
-    detection_methods = ["dlib", "mediapipe"]
+    detection_methods = ["dlib", "mediapipe","ssd","mtcnn"]
     recognition_methods = [
         "Facenet",
         "ArcFace",

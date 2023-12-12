@@ -4,9 +4,9 @@
 == 方法和模型
 === Face Detection
 - opencv
-- ssd
+- #checkmark ssd
 - #checkmark dlib
-- mtcnn
+- #checkmark mtcnn
 - retinaface
 - #checkmark mediapipe
 
@@ -62,6 +62,14 @@
   [mediapipe], [DeepFace], [79.90\%], [79.34\%] ,
   [mediapipe], [Facenet512], [82.82\%], [82.33\%] ,
   text(blue)[mediapipe], text(blue)[VGG-Face], text(blue)[98.72\%], text(blue)[98.68\%] ,
+  [ssd], [VGG-Face], [99.51\%], [99.50\%] ,
+  [mtcnn], [VGG-Face], [98.70\%], [98.65\%] ,
+  [ssd], [Facenet], [94.88\%], [94.74\%] ,
+  [mtcnn], [Facenet], [93.46\%], [93.20\%] ,
+  [ssd], [Facenet512], [89.87\%], [89.67\%] , 
+  [ssd], [DeepFace], [82.50\%], [82.05\%] ,
+  [ssd], [OpenFace], [61.25\%], [60.04\%] ,
+  [ssd], [ArcFace], [2.43\%], [0.79\%] , 
 )
 // typstfmt::on
 
