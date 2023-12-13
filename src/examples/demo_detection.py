@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import cv2
 
-from vision.utils import get_face_by_dlib, get_face_by_mediapipe
+from extractor.vision.utils import get_face_by_dlib, get_face_by_mediapipe
 
 
 def float2int(value: float, max_value: int) -> int:

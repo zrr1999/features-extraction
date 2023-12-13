@@ -27,7 +27,7 @@ def train_and_eval(
 ):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     with Progress("[red](Loss: {task.fields[loss_value]:.8f})", *Progress.get_default_columns()) as progress:
-        stopper = EarlyStopper(5)
+        stopper = EarlyStopper(10)
 
         task = progress.add_task(
             f"[green]Using {detection_method} and {recognition_method} pkl to train",
