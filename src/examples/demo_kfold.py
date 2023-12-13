@@ -11,7 +11,7 @@ from extractor.utils import calculate_accuracy, load_features
 
 dataset_path = "./datasets/Face-Dataset/UCEC-Face"
 features_path = "./datasets/features/vision"
-detection_methods = ["dlib", "mediapipe","mtcnn","ssd"]
+detection_methods = ["dlib", "mediapipe", "mtcnn", "ssd"]
 recognition_methods = ["Facenet", "ArcFace", "OpenFace", "DeepFace"]
 
 
