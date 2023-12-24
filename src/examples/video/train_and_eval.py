@@ -8,11 +8,11 @@ from rich.progress import Progress
 from torch import nn
 from torch.utils.data import DataLoader
 
-from extractor.dataset.face import FaceFeaturesDataset
 from extractor.dataset.utils import split_dataset_by_class
+from extractor.dataset.video import VideoFeaturesDataset
 from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
-from extractor.vision.utils import get_all_vision_methods
-from model.simple import SimpleModel
+from extractor.vision.utils import get_all_video_methods
+from model.simple import SimpleConv1dModel
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
 
@@ -20,8 +20,7 @@ logger.add("logs/train_and_eval.log", rotation="10 MB")
 def train_and_eval(
     model: nn.Module,
     num_epochs: int,
-    detection_method: str,
-    recognition_method: str,
+    method: str,
     train_data_loader: DataLoader,
     test_data_loader: DataLoader,
 ):
@@ -30,7 +29,7 @@ def train_and_eval(
         stopper = EarlyStopper(10)
 
         task = progress.add_task(
-            f"[green]Using {detection_method} and {recognition_method} pkl to train",
+            f"[green]Using {method} pkl to train",
             total=num_epochs,
             loss_value=float("inf"),
         )
@@ -58,44 +57,42 @@ def train_and_eval(
 
 
 num_epochs = 10000
-batch_size = 4096 * 4
-num_classes = 130
-dataset_path = "./datasets/Face-Dataset/UCEC-Face"
-features_path = "./datasets/features/vision"
+batch_size = 512
+num_classes = 7
 use_cuda = True
+features_path = "./datasets/features/video"
 
 criterion = nn.CrossEntropyLoss()
 if use_cuda:
     criterion = criterion.cuda()
 mean_accuracies = {}
 mean_f1_scores = {}
-for detection_method, recognition_method, feature_size in get_all_vision_methods():
-    features_dict = load_features(features_path, f"{detection_method}_{recognition_method}")
+for method, feature_size in get_all_video_methods():
+    features_dict = load_features(features_path, f"{method}_features")
     mean_accuracy = 0
     mean_f1_score = 0
     for i, (train_dataset, test_dataset) in enumerate(
-        split_dataset_by_class(FaceFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10)
+        split_dataset_by_class(VideoFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10)
     ):
-        if os.path.exists(f"checkpoints/{detection_method}_{recognition_method}_{i}.pth"):
-            logger.info(f"skip: checkpoints/{detection_method}_{recognition_method}_{i}.pth exists")
+        if os.path.exists(f"checkpoints/{method}_{i}.pth"):
+            logger.info(f"skip: checkpoints/{method}_{i}.pth exists")
             continue
 
         train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-        model = SimpleModel(feature_size, num_classes)
+        model = SimpleConv1dModel(10, feature_size, num_classes)
         if use_cuda:
             model = model.cuda()
         train_accuracy, test_accuracy = train_and_eval(
             model,
             num_epochs,
-            detection_method,
-            recognition_method,
+            method,
             train_data_loader,
             test_data_loader,
         )
 
-        checkpoint_dir = f"checkpoints/models/{detection_method}_{recognition_method}"
+        checkpoint_dir = f"checkpoints/models/{method}"
         os.makedirs(checkpoint_dir, exist_ok=True)
         torch.save(
             model,
@@ -104,17 +101,15 @@ for detection_method, recognition_method, feature_size in get_all_vision_methods
         logger.info(f"Model saved: {checkpoint_dir}/{i}.pth")
 
         mean_accuracy += test_accuracy
-        logger.info(
-            f"Accuracy in {detection_method}-{recognition_method}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
-        )
+        logger.info(f"Accuracy in {method}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%")
         f1_score = calculate_f1_score(model, test_data_loader)
         mean_f1_score += f1_score
         logger.info(f"F1 Score: {f1_score:.2f}")
     mean_accuracy /= 10
     mean_f1_score /= 10
-    logger.info(f"Mean Accuracy in {detection_method}-{recognition_method}: {mean_accuracy:.2f}%")
-    mean_accuracies[(detection_method, recognition_method)] = mean_accuracy
-    mean_f1_scores[(detection_method, recognition_method)] = mean_f1_score
+    logger.info(f"Mean Accuracy in {method}: {mean_accuracy:.2f}%")
+    mean_accuracies[method] = mean_accuracy
+    mean_f1_scores[method] = mean_f1_score
 
 
 logger.info(mean_accuracies)

@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from extractor.audio.utils import get_all_audio_methods
 from extractor.dataset.audio import AudioFeaturesDataset
 from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
-from model.simple import SimpleAudioModel
+from model.simple import SimpleConv1dModel
 
 logger.add("checkpoints/logs/audio/train_and_eval.log", rotation="10 MB")
 
@@ -88,7 +88,7 @@ for smile, feature_size in get_all_audio_methods():
     train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = SimpleAudioModel(256, feature_size, num_classes)
+    model = SimpleConv1dModel(256, feature_size, num_classes)
     if use_cuda:
         model = model.cuda()
     train_accuracy, test_accuracy = train_and_eval(

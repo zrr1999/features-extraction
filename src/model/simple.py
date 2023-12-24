@@ -17,7 +17,7 @@ class SimpleModel(nn.Module):
         return x
 
 
-class SimpleAudioModel(nn.Module):
+class SimpleConv1dModel(nn.Module):
     def __init__(self, input_size, feature_size, num_classes):
         super().__init__()
         self.feature_size = feature_size

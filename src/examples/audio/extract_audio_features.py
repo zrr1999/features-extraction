@@ -12,7 +12,7 @@ from loguru import logger
 from rich.progress import Progress
 
 from extractor.audio.utils import get_all_audio_methods
-from extractor.vision.utils import detect_face, extract_face_features, get_all_vision_methods
+from extractor.vision.utils import detect_face, extract_face_features, get_all_face_methods
 
 dataset_path = "./datasets/ESD"
 features_path = "./datasets/features/audio"

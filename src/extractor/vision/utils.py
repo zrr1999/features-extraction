@@ -110,7 +110,7 @@ def extract_face_features(image, model_name: str = "Facenet"):
     return face_features[0]["embedding"]
 
 
-def get_all_vision_methods(ignore_methods: Sequence[str] = ()):
+def get_all_face_methods(ignore_methods: Sequence[str] = ()):
     detection_methods = ["dlib", "mediapipe", "ssd", "mtcnn"]
     recognition_methods = [
         "Facenet",
@@ -134,3 +134,8 @@ def get_all_vision_methods(ignore_methods: Sequence[str] = ()):
         if detection_method in ignore_methods or recognition_method in ignore_methods:
             continue
         yield detection_method, recognition_method, feature_size[recognition_method]
+
+
+def get_all_video_methods(ignore_methods: Sequence[str] = ()):
+    yield "r21d", 512
+    yield "s3d", 1024

@@ -47,12 +47,6 @@ jobs:
         run: |
           typst compile --font-path="./fonts/" reports/main.typ
 
-      - name: Upload PDF file 👷‍♂️
-        uses: actions/upload-artifact@v3
-        with:
-          name: report
-          path: reports/main.pdf
-
       - name: Publish GitHub Release 📝
         uses: softprops/action-gh-release@v1
         with:

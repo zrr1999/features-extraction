@@ -8,14 +8,14 @@ import cv2
 from loguru import logger
 from rich.progress import Progress
 
-from extractor.vision.utils import detect_face, extract_face_features, get_all_vision_methods
+from extractor.vision.utils import detect_face, extract_face_features, get_all_face_methods
 
 dataset_path = "./datasets/Face-Dataset/UCEC-Face"
 features_path = "./datasets/features/vision"
 
 os.makedirs(features_path, exist_ok=True)
 
-for detection_method, recognition_method, _ in get_all_vision_methods():
+for detection_method, recognition_method, _ in get_all_face_methods():
     if os.path.exists(f"{features_path}/{detection_method}_{recognition_method}.pkl"):
         logger.info(f"skip: {features_path}/{detection_method}_{recognition_method}.pkl exists")
         continue
