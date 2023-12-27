@@ -12,7 +12,7 @@ from extractor.dataset.utils import split_dataset_by_class
 from extractor.dataset.video import VideoFeaturesDataset
 from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
 from extractor.vision.utils import get_all_video_methods
-from model.simple import SimpleConv1dModel
+from model.simple import GRUModel
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
 
@@ -68,48 +68,60 @@ if use_cuda:
 mean_accuracies = {}
 mean_f1_scores = {}
 for method, feature_size in get_all_video_methods():
-    features_dict = load_features(features_path, f"{method}_features")
-    mean_accuracy = 0
-    mean_f1_score = 0
-    for i, (train_dataset, test_dataset) in enumerate(
-        split_dataset_by_class(VideoFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10)
+    for model_name, model in (
+        # ("conv1d", Conv1dModel(20, feature_size, num_classes)),
+        # ("conv1d_softmax", Conv1dSoftmaxModel(20, feature_size, num_classes)),
+        # ("conv1d_logsoftmax", Conv1dLogSoftmaxModel(20, feature_size, num_classes)),
+        # ("conv1d_sigmoid", Conv1dSigmoidModel(20, feature_size, num_classes)),
+        # ("lstm", LSTMModel(feature_size, 20, num_classes)),
+        ("gru", GRUModel(feature_size, 20, num_classes)),
     ):
-        if os.path.exists(f"checkpoints/{method}_{i}.pth"):
-            logger.info(f"skip: checkpoints/{method}_{i}.pth exists")
-            continue
+        features_dict = load_features(features_path, f"{method}_features")
+        mean_accuracy = 0
+        mean_f1_score = 0
+        for i, (train_dataset, test_dataset) in enumerate(
+            split_dataset_by_class(VideoFeaturesDataset(features_dict, use_cuda=use_cuda), folds=10)
+        ):
+            model.init_weights()
+            checkpoint_dir = f"checkpoints/models/video/{model_name}-{method}"
+            os.makedirs(checkpoint_dir, exist_ok=True)
+            model_path = f"{checkpoint_dir}/{i}.pth"
 
-        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+            # if os.path.exists(model_path):
+            #     logger.info(f"skip: {model_path} exists")
+            #     continue
 
-        model = SimpleConv1dModel(10, feature_size, num_classes)
-        if use_cuda:
-            model = model.cuda()
-        train_accuracy, test_accuracy = train_and_eval(
-            model,
-            num_epochs,
-            method,
-            train_data_loader,
-            test_data_loader,
-        )
+            train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+            test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-        checkpoint_dir = f"checkpoints/models/{method}"
-        os.makedirs(checkpoint_dir, exist_ok=True)
-        torch.save(
-            model,
-            f"{checkpoint_dir}/{i}.pth",
-        )
-        logger.info(f"Model saved: {checkpoint_dir}/{i}.pth")
+            if use_cuda:
+                model = model.cuda()
+            train_accuracy, test_accuracy = train_and_eval(
+                model,
+                num_epochs,
+                method,
+                train_data_loader,
+                test_data_loader,
+            )
 
-        mean_accuracy += test_accuracy
-        logger.info(f"Accuracy in {method}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%")
-        f1_score = calculate_f1_score(model, test_data_loader)
-        mean_f1_score += f1_score
-        logger.info(f"F1 Score: {f1_score:.2f}")
-    mean_accuracy /= 10
-    mean_f1_score /= 10
-    logger.info(f"Mean Accuracy in {method}: {mean_accuracy:.2f}%")
-    mean_accuracies[method] = mean_accuracy
-    mean_f1_scores[method] = mean_f1_score
+            torch.save(
+                model,
+                model_path,
+            )
+            logger.info(f"Model saved: {model_path}")
+
+            mean_accuracy += test_accuracy
+            logger.info(
+                f"Accuracy in {method}/{model_name}({i+1}/10): test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
+            )
+            f1_score = calculate_f1_score(model, test_data_loader)
+            mean_f1_score += f1_score
+            logger.info(f"F1 Score: {f1_score:.2f}")
+        mean_accuracy /= 10
+        mean_f1_score /= 10
+        logger.info(f"Mean Accuracy in {method}/{model_name}: {mean_accuracy:.2f}%")
+        mean_accuracies[(method, model_name)] = mean_accuracy
+        mean_f1_scores[(method, model_name)] = mean_f1_score
 
 
 logger.info(mean_accuracies)

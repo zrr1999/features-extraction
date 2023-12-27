@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import pickle
-from itertools import product
-from typing import Any, Sequence
 
 import cv2
 import torch
 from loguru import logger
 from torch import nn
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 
 
 def get_example_image():
@@ -25,7 +23,7 @@ def load_features(features_path: str, name: str):
 
 
 def calculate_accuracy(model: nn.Module, data_loader: DataLoader):
-    model.eval()
+    # model.eval()
     correct = 0
     total = 0
 

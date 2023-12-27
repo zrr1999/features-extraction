@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence
-
-import numpy as np
-import pandas as pd
 import torch
-from torch.utils.data import ConcatDataset, Dataset, Subset
+from torch.utils.data import Dataset
 
 
 def emotion2int(emotion: str):
@@ -21,8 +17,8 @@ class VideoFeaturesDataset(Dataset):
 
     def __getitem__(self, index):
         (label, _), features = self.items[index]
-        features = torch.tensor(features[:10], dtype=torch.float32)
-        features = torch.cat([features, torch.zeros(10 - features.shape[0], features.shape[1])])
+        features = torch.tensor(features[:20], dtype=torch.float32)
+        features = torch.cat([torch.zeros(20 - features.shape[0], features.shape[1]), features])
         if self.use_cuda:
             return features.cuda(), torch.tensor(label, dtype=torch.int64).cuda()
         else:

@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from extractor.audio.utils import get_all_audio_methods
 from extractor.dataset.audio import AudioFeaturesDataset
 from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
-from model.simple import SimpleConv1dModel
+from model.simple import Conv1dModel, Conv1dSoftmaxModel
 
 logger.add("checkpoints/logs/audio/train_and_eval.log", rotation="10 MB")
 
@@ -68,56 +68,59 @@ if use_cuda:
 mean_accuracies = {}
 mean_f1_scores = {}
 for smile, feature_size in get_all_audio_methods():
-    if smile.feature_level == opensmile.FeatureLevel.Functionals:
-        continue
-    train_features_dict = load_features(features_path, f"train_{smile.feature_set}_{smile.feature_level}")
-    test_features_dict = load_features(features_path, f"test_{smile.feature_set}_{smile.feature_level}")
-    mean_accuracy = 0
-    mean_f1_score = 0
+    for model_name, model in (
+        ("conv1d", Conv1dModel(256, feature_size, num_classes)),
+        ("conv1d_softmax", Conv1dSoftmaxModel(256, feature_size, num_classes)),
+    ):
+        if smile.feature_level == opensmile.FeatureLevel.Functionals:
+            continue
+        train_features_dict = load_features(features_path, f"train_{smile.feature_set}_{smile.feature_level}")
+        test_features_dict = load_features(features_path, f"test_{smile.feature_set}_{smile.feature_level}")
+        mean_accuracy = 0
+        mean_f1_score = 0
 
-    checkpoint_dir = f"checkpoints/models/audio/"
-    checkpoint_path = f"{checkpoint_dir}/{smile.feature_set}_{smile.feature_level}.pth"
+        checkpoint_dir = f"checkpoints/models/audio/{model_name}/"
+        checkpoint_path = f"{checkpoint_dir}/{smile.feature_set}_{smile.feature_level}.pth"
 
-    train_dataset = AudioFeaturesDataset(train_features_dict, use_cuda=use_cuda)
-    test_dataset = AudioFeaturesDataset(test_features_dict, use_cuda=use_cuda)
+        train_dataset = AudioFeaturesDataset(train_features_dict, use_cuda=use_cuda)
+        test_dataset = AudioFeaturesDataset(test_features_dict, use_cuda=use_cuda)
 
-    if os.path.exists(checkpoint_path):
-        logger.info(f"skip: {checkpoint_path} exists")
-        continue
+        if os.path.exists(checkpoint_path):
+            logger.info(f"skip: {checkpoint_path} exists")
+            continue
 
-    train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = SimpleConv1dModel(256, feature_size, num_classes)
-    if use_cuda:
-        model = model.cuda()
-    train_accuracy, test_accuracy = train_and_eval(
-        model,
-        num_epochs,
-        f"{smile.feature_set}_{smile.feature_level}",
-        train_data_loader,
-        test_data_loader,
-    )
+        if use_cuda:
+            model = model.cuda()
+        train_accuracy, test_accuracy = train_and_eval(
+            model,
+            num_epochs,
+            f"{smile.feature_set}_{smile.feature_level}",
+            train_data_loader,
+            test_data_loader,
+        )
 
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    torch.save(
-        model,
-        checkpoint_path,
-    )
-    logger.info(f"Model saved: {checkpoint_path}")
+        os.makedirs(checkpoint_dir, exist_ok=True)
+        torch.save(
+            model,
+            checkpoint_path,
+        )
+        logger.info(f"Model saved: {checkpoint_path}")
 
-    mean_accuracy += test_accuracy
-    logger.info(
-        f"Accuracy in {smile.feature_set}-{smile.feature_level}: test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
-    )
-    f1_score = calculate_f1_score(model, test_data_loader)
-    mean_f1_score += f1_score
-    logger.info(f"F1 Score: {f1_score:.2f}")
+        mean_accuracy += test_accuracy
+        logger.info(
+            f"Accuracy in {smile.feature_set}-{smile.feature_level}: test: {test_accuracy:.2f}%, train: {train_accuracy:.2f}%"
+        )
+        f1_score = calculate_f1_score(model, test_data_loader)
+        mean_f1_score += f1_score
+        logger.info(f"F1 Score: {f1_score:.2f}")
 
-    logger.info(f"Mean Accuracy in {smile.feature_set}-{smile.feature_level}: {mean_accuracy:.2f}%")
-    mean_accuracies[(smile.feature_set, smile.feature_level)] = mean_accuracy
-    mean_f1_scores[(smile.feature_set, smile.feature_level)] = mean_f1_score
+        logger.info(f"Mean Accuracy in {smile.feature_set}-{smile.feature_level}: {mean_accuracy:.2f}%")
+        mean_accuracies[(smile.feature_set, smile.feature_level, model_name)] = mean_accuracy
+        mean_f1_scores[(smile.feature_set, smile.feature_level, model_name)] = mean_f1_score
 
 
-logger.info(mean_accuracies)
-logger.info(mean_f1_scores)
+logger.info("accuracy:", mean_accuracies)
+logger.info("f1:", mean_f1_scores)

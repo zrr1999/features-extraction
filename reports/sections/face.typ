@@ -34,15 +34,6 @@
 对每类特征分别进行 `kfold-10` 的交叉 `10000` 批次的训练，在 `10` 次损失不下降的情况下停止训练（这个数值可能有点小，后续调整）。
 目前给出了每次训练的精度和 `10` 次训练的平均精度和`weighted-F1`。
 
-早熟机制：
-- #checkmark Loss
-- #checkmark Accuracy
-- #checkmark Weighted-F1
-
-== 指标
-- #checkmark Accuracy
-- #checkmark Weighted-F1
-
 == 结果
 // typstfmt::off
 #table(

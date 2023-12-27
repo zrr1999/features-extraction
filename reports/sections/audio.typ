@@ -21,15 +21,6 @@
 === 分类模型训练
 对每类特征在训练集分别进行 `10000` 批次的训练，在满足早退条件情况下停止训练。 目前给出了精度和`weighted-F1`。
 
-早熟机制：
-- #checkmark Loss
-- #checkmark Accuracy
-- #checkmark Weighted-F1
-
-== 指标
-- #checkmark Accuracy
-- #checkmark Weighted-F1
-
 == 结果
 // typstfmt::off
 #table(
