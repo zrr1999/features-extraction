@@ -5,14 +5,10 @@ import os
 import pickle
 from pathlib import Path
 
-import cv2
 import numpy as np
-import opensmile
-from loguru import logger
 from rich.progress import Progress
 
 from extractor.audio.utils import get_all_audio_methods
-from extractor.vision.utils import detect_face, extract_face_features, get_all_face_methods
 
 dataset_path = "./datasets/ESD"
 features_path = "./datasets/features/audio"
@@ -23,7 +19,7 @@ for (smile, _), set_type in itertools.product(get_all_audio_methods(), ["train",
     emotions = ["Angry", "Happy", "Neutral", "Sad", "Surprise"]
     data = {}
     with Progress() as progress:
-        task = progress.add_task(f"[red]Generating pkl", total=100)
+        task = progress.add_task("[red]Generating pkl", total=100)
         for e, i in itertools.product(emotions, range(1, 21)):
             progress.update(task, advance=1)
             sub_dir = Path(f"{dataset_path}/{i:04d}")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from torch.utils.data import ConcatDataset, Dataset, Subset
+from torch.utils.data import ConcatDataset, Subset
 
 
 def split_dataset(dataset, *, folds=10):

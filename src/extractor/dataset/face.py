@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import torch
-from torch.utils.data import ConcatDataset, Dataset, Subset
+from torch.utils.data import Dataset
 
 
 class FaceFeaturesDataset(Dataset):

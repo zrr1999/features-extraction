@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
-import opensmile
 
 from extractor.audio.utils import get_all_audio_methods
 

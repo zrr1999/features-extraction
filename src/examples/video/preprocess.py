@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import pickle
-from typing import Sequence
 
 import numpy as np
 import pandas as pd
-import torch
-from torch.utils.data import ConcatDataset, Dataset, Subset
 
 
 def emotion2int(emotion: str):
