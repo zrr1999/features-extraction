@@ -108,6 +108,40 @@ class Conv1dLogSoftmaxModel(BaseModel):
         return x
 
 
+class Conv1dLogSoftmaxAttentionModel(BaseModel):
+    def __init__(self, input_size, feature_size, num_classes, num_heads=16):
+        super(Conv1dLogSoftmaxAttentionModel, self).__init__()
+        self.feature_size = feature_size
+        self.conv1 = nn.Conv1d(in_channels=input_size, out_channels=64, kernel_size=3)
+        self.pool = nn.MaxPool1d(kernel_size=2)
+
+        # 使用 nn.MultiheadAttention 实现多头注意力机制
+        self.multihead_attention = nn.MultiheadAttention(embed_dim=64, num_heads=num_heads)
+
+        self.final = nn.Sequential(
+            nn.Linear(64 * ((feature_size - 2) // 2), 128),
+            nn.Sigmoid(),
+            nn.Linear(128, num_classes),
+            nn.LogSoftmax(dim=-1),
+        )
+        self.input_size = input_size
+
+    def forward(self, x):
+        x = x[:, : self.input_size]
+        x = torch.cat([x, torch.zeros(x.shape[0], self.input_size - x.shape[1], x.shape[2], device=x.device)], dim=1)
+
+        x = nn.functional.relu(self.conv1(x))
+        x = self.pool(x)
+
+        x = x.permute(2, 0, 1)  # 将维度调整为 (seq_len, batch_size, embed_dim)
+        attention_output, _ = self.multihead_attention(x, x, x)
+        x = attention_output.permute(1, 2, 0)  # 调整维度为 (batch_size, embed_dim, seq_len)
+
+        x = x.reshape(-1, 64 * ((self.feature_size - 2) // 2))
+        x = self.final(x)
+        return x
+
+
 class Conv1dSigmoidModel(BaseModel):
     def __init__(self, input_size, feature_size, num_classes):
         super().__init__()
@@ -150,6 +184,28 @@ class LSTMModel(BaseModel):
         x = x[:, -1]
         x = self.final(x)
         return x
+
+
+class LSTMModelWithMultiheadAttention(BaseModel):
+    def __init__(self, feature_size, hidden_dim, num_classes, bidirectional=True, num_heads=8):
+        super().__init__()
+        self.lstm = nn.LSTM(feature_size, hidden_dim, 5, batch_first=True, bidirectional=bidirectional)
+        self.multihead_attention = nn.MultiheadAttention(hidden_dim * 2 if bidirectional else hidden_dim, num_heads)
+        self.final = nn.Sequential(
+            nn.Linear(hidden_dim * 2 if bidirectional else hidden_dim, 128),
+            nn.Sigmoid(),
+            nn.Linear(128, num_classes),
+            nn.LogSoftmax(dim=-1),
+        )
+
+    def forward(self, x):
+        lstm_output, _ = self.lstm(x)
+        lstm_output = lstm_output.permute(1, 0, 2)  # Change the dimensions for MultiheadAttention
+        attended_output, _ = self.multihead_attention(lstm_output, lstm_output, lstm_output)
+        attended_output = attended_output.permute(1, 0, 2)  # Change the dimensions back
+        attended_output = attended_output.mean(dim=1)
+        output = self.final(attended_output)
+        return output
 
 
 class GRUModel(BaseModel):

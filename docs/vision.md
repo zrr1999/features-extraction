@@ -16,7 +16,8 @@
 - ✅ ArcFace
 - ✅ Facenet
 - ✅ Facenet512
-
+- 🚧 Dlib
+- 🚧 SFace
 ### Facial Feature Recognition
 - ✅ VGG-Face
 
@@ -35,10 +36,7 @@
 早熟机制：
 - ✅ Loss
 - ✅ Accuracy
-- ❌ Precision
-- ❌ Recall
-- ❌ F1
-- 🚧 Weighted-F1
+- ✅ Weighted-F1
 
 ## 指标
 - ✅ Accuracy

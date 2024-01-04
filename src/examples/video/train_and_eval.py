@@ -12,7 +12,16 @@ from extractor.dataset.utils import split_dataset_by_class
 from extractor.dataset.video import VideoFeaturesDataset
 from extractor.utils import EarlyStopper, calculate_accuracy, calculate_f1_score, load_features
 from extractor.vision.utils import get_all_video_methods
-from model.simple import GRUModel
+from model.simple import (
+    Conv1dLogSoftmaxAttentionModel,
+    Conv1dLogSoftmaxModel,
+    Conv1dModel,
+    Conv1dSigmoidModel,
+    Conv1dSoftmaxModel,
+    GRUModel,
+    LSTMModel,
+    LSTMModelWithMultiheadAttention,
+)
 
 logger.add("logs/train_and_eval.log", rotation="10 MB")
 
@@ -57,7 +66,7 @@ def train_and_eval(
 
 
 num_epochs = 10000
-batch_size = 512
+batch_size = 256
 num_classes = 7
 use_cuda = True
 features_path = "./datasets/features/video"
@@ -69,11 +78,13 @@ mean_accuracies = {}
 mean_f1_scores = {}
 for method, feature_size in get_all_video_methods():
     for model_name, model in (
-        # ("conv1d", Conv1dModel(20, feature_size, num_classes)),
-        # ("conv1d_softmax", Conv1dSoftmaxModel(20, feature_size, num_classes)),
-        # ("conv1d_logsoftmax", Conv1dLogSoftmaxModel(20, feature_size, num_classes)),
-        # ("conv1d_sigmoid", Conv1dSigmoidModel(20, feature_size, num_classes)),
-        # ("lstm", LSTMModel(feature_size, 20, num_classes)),
+        ("conv1d", Conv1dModel(20, feature_size, num_classes)),
+        ("conv1d_softmax", Conv1dSoftmaxModel(20, feature_size, num_classes)),
+        ("conv1d_logsoftmax", Conv1dLogSoftmaxModel(20, feature_size, num_classes)),
+        ("conv1d_sigmoid", Conv1dSigmoidModel(20, feature_size, num_classes)),
+        ("conv_attention", Conv1dLogSoftmaxAttentionModel(20, feature_size, num_classes)),
+        ("lstm", LSTMModel(feature_size, 20, num_classes)),
+        ("lstm_attention", LSTMModelWithMultiheadAttention(feature_size, 20, num_classes)),
         ("gru", GRUModel(feature_size, 20, num_classes)),
     ):
         features_dict = load_features(features_path, f"{method}_features")

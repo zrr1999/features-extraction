@@ -10,6 +10,11 @@
 === 分类模型
 - #checkmark conv1d
 - #checkmark conv1d + softmax
+- #checkmark conv1d + logsoftmax
+- #checkmark lstm + softmax
+- #checkmark lstm + logsoftmax
+- #checkmark lstm(bi) + logsoftmax
+- #checkmark gru(bi) + logsoftmax
 
 == 实验
 === 特征提取
@@ -38,14 +43,21 @@
   [r21d], [20], [conv1d],[32.86\%], [21.31\%] ,
   [s3d], [20],  [conv1d], [30.77\%], [29.60\%] ,
 
-  [r21d], [20], [conv1d + logsoftmax],[36.51\%], [22.62\%] ,
-  [s3d], [20],  [conv1d + logsoftmax], [31.80\%], [30.00\%] ,
+  [r21d], [20], [conv1d + logsoftmax],[37.07\%], [23.03\%] ,
+  [s3d], [20],  [conv1d + logsoftmax], [31.93\%], [30.11\%] ,
+
+  [r21d], [20], [conv1d + attention],[46.94\%], [21.70\%] ,
+  [s3d], [20],  [conv1d + attention], [33.37\%], [21.52\%] ,
+
   [r21d], [20], [lstm + logsoftmax],[40.57\%], [22.27\%] ,
   [s3d], [20],  [lstm + logsoftmax], [35.95\%], [28.73\%] ,
   [r21d], [20], [lstm(bi) + logsoftmax],[38.33\%], [21.39\%] ,
   [s3d], [20],  [lstm(bi) + logsoftmax], [33.10\%], [28.99\%] ,
   [r21d], [20], [gru(bi) + logsoftmax],[34.51\%], [21.65\%] ,
   [s3d], [20],  [gru(bi) + logsoftmax], [29.79\%], [28.84\%] ,
+
+  [r21d], [20], [lstm(bi) + logsoftmax + attention],[38.54\%], [21.88\%] ,
+  [s3d], [20],  [lstm(bi) + logsoftmax + attention], [33.42\%], [29.18\%] ,
 )
 // typstfmt::on
 == 数据集

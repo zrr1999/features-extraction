@@ -9,20 +9,6 @@
 - retinaface
 - ✅ mediapipe
 
-### Face Recognition (Feature Extraction)
-- ✅ OpenFace
-- ✅ DeepFace
-- DeepID
-- ✅ ArcFace
-- ✅ Facenet
-- ✅ Facenet512
-
-### Facial Feature Recognition
-- ✅ VGG-Face
-
-### Classification
-- ✅ Fully Connected Layer
-- VGG-Face
 
 ## 实验
 ### 特征提取
@@ -35,10 +21,7 @@
 早熟机制：
 - ✅ Loss
 - ✅ Accuracy
-- ❌ Precision
-- ❌ Recall
-- ❌ F1
-- 🚧 Weighted-F1
+- ✅ Weighted-F1
 
 ## 指标
 - ✅ Accuracy

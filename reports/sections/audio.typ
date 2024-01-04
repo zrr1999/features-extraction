@@ -3,6 +3,7 @@
 = 音频模态特征提取对比实验
 == 方法和模型
 === 特征提取方法
+- ComParE_2016
 - #checkmark GeMAPSv01a
 - #checkmark GeMAPSv01b
 - #checkmark eGeMAPSv01a
