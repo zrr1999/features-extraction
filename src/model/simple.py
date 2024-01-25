@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import torch
 from torch import nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 class BaseModel(nn.Module):
@@ -225,7 +226,69 @@ class GRUModel(BaseModel):
         x = x[:, -1]
         x = self.final(x)
         return x
+class LSTMModel_vl(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(LSTMModel_vl, self).__init__()
+        self.hidden_size = hidden_size
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True,bidirectional=True)
+        self.fc1 = nn.Linear(hidden_size*2, 128)
+        self.fc2 = nn.Linear(128, num_classes)
 
+    def forward(self, x, lengths):
+        # 对序列按长度进行排序（降序）
+        sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
+        x_sorted = x[sorted_idx]
+        # 使用pack_padded_sequence对序列进行压缩
+        packed_sequence = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True)
+        # 通过LSTM处理压缩后的序列2
+        packed_output, _ = self.lstm(packed_sequence)
+        # 使用pad_packed_sequence对序列进行解压缩
+        output, _ = pad_packed_sequence(packed_output, batch_first=True)
+        #print(output.shape,"---------output.shape")
+        # 恢复原始排序
+        _, original_idx = torch.sort(sorted_idx)
+        output = output[original_idx]
+        # 获取最后一个时间步的输出
+        last_output = output[torch.arange(output.size(0)), lengths - 1]
+        #print(last_output,last_output.shape,"---------last_output.shape")
+        # 使用全连接层进行分类
+        x = self.fc1(last_output)
+        x = nn.functional.relu(x)
+        x = self.fc2(x)
+        x = nn.functional.log_softmax(x, dim=1)
+        #print(x,x.shape)
+        return x
+
+class GRUModel_vl(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(GRUModel_vl, self).__init__()
+        self.hidden_size = hidden_size
+        self.gru = nn.GRU(input_size, hidden_size, batch_first=True,bidirectional=True)
+        self.fc1 = nn.Linear(hidden_size*2, 128)
+        self.fc2 = nn.Linear(128, num_classes)
+        #self.fc = nn.Linear(hidden_size,num_classes)
+
+    def forward(self, x, lengths):
+        # 对序列按长度进行排序（降序）
+        sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
+        x_sorted = x[sorted_idx]
+        # 使用pack_padded_sequence对序列进行压缩
+        packed_sequence = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True)
+        # 通过GRU处理压缩后的序列
+        packed_output, _ = self.gru(packed_sequence)
+        # 使用pad_packed_sequence对序列进行解压缩
+        output, _ = pad_packed_sequence(packed_output, batch_first=True)
+        # 恢复原始排序
+        _, original_idx = torch.sort(sorted_idx)
+        output = output[original_idx]
+        # 获取最后一个时间步的输出
+        last_output = output[torch.arange(output.size(0)), lengths - 1]
+
+        x = self.fc1(last_output)
+        x = nn.functional.relu(x)
+        x = self.fc2(x)
+        x = nn.functional.log_softmax(x, dim=1)
+        return x
 
 # class Conv1dLSTM(BaseModel):
 #     def __init__(
