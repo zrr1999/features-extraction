@@ -53,7 +53,6 @@ def calculate_class_weights(data_loader: DataLoader, num_classes: int = 130):
     return class_weights
 
 
-
 def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
     class_weights = calculate_class_weights(data_loader)
     num_classes = len(class_weights)
@@ -104,14 +103,15 @@ class EarlyStopper:
                     return True
         return False
 
+
 def calculate_accuracy_vl(model: nn.Module, data_loader: DataLoader):
     model.eval()
     correct = 0
     total = 0
 
     with torch.no_grad():
-        for features, labels,lengths in data_loader:
-            outputs = model(features,lengths)
+        for features, labels, lengths in data_loader:
+            outputs = model(features, lengths)
             _, predicted = torch.max(outputs.data, 1)  # 获取最大概率的预测结果
             total += labels.size(0)  # 更新总样本数
             correct += (predicted == labels).sum().item()  # 更新正确预测的样本数
@@ -123,7 +123,7 @@ def calculate_accuracy_vl(model: nn.Module, data_loader: DataLoader):
 def calculate_class_weights_vl(data_loader: DataLoader, num_classes: int = 130):
     class_counts = [0] * num_classes
 
-    for _, labels,_ in data_loader:
+    for _, labels, _ in data_loader:
         for i in range(num_classes):
             class_counts[i] += (labels == i).sum().item()
 
@@ -141,8 +141,8 @@ def calculate_f1_score_vl(model: nn.Module, data_loader: DataLoader):
     class_f1_scores = [0] * num_classes
     class_counts = [0] * num_classes
 
-    for features, labels,lengths in data_loader:
-        outputs = model(features,lengths)
+    for features, labels, lengths in data_loader:
+        outputs = model(features, lengths)
         _, predicted = torch.max(outputs.data, 1)
 
         for i in range(num_classes):

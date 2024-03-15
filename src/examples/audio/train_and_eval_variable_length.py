@@ -1,23 +1,21 @@
 from __future__ import annotations
 
 import os
+import sys
 
-import opensmile
 import torch
 from loguru import logger
 from rich.progress import Progress
 from torch import nn
-from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
+from torch.utils.data import DataLoader
 
-import sys
 sys.path.append("../features-extraction/src")
 
-from extractor.audio.utils import get_all_audio_methods,get_batch_size
+from extractor.audio.utils import get_all_audio_methods, get_batch_size
 from extractor.dataset.audio import AudioFeaturesDataset_tensor
 from extractor.utils import EarlyStopper, calculate_accuracy_vl, calculate_f1_score_vl, load_features
-from model.simple import LSTMModel_vl,GRUModel_vl
-
+from model.simple import GRUModel_vl, LSTMModel_vl
 
 logger.add("checkpoints/logs/audio/train_and_eval_variable_length.log", rotation="10 MB")
 
@@ -38,15 +36,15 @@ def train_and_eval(
             total=num_epochs,
             loss_value=float("inf"),
         )
-        
+
         for epoch in range(num_epochs):
             loss_value = float("inf")
             loss_value_list = []
             model.train()
-            for features, labels,lengths in train_data_loader:
+            for features, labels, lengths in train_data_loader:
                 optimizer.zero_grad()
-                #print(lengths.device)
-                outputs = model(features,lengths)
+                # print(lengths.device)
+                outputs = model(features, lengths)
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
@@ -58,11 +56,12 @@ def train_and_eval(
                 test_accuracy = calculate_accuracy_vl(model, test_data_loader)
                 if stopper.update(loss=-loss_value, accuracy=test_accuracy):
                     break
-        
+
     train_accuracy = calculate_accuracy_vl(model, train_data_loader)
     test_accuracy = calculate_accuracy_vl(model, test_data_loader)
 
     return train_accuracy, test_accuracy
+
 
 def collate_fn(batch):
     batch.sort(key=lambda x: len(x[0]), reverse=True)
@@ -70,6 +69,7 @@ def collate_fn(batch):
     padded_features = pad_sequence(features_batch, batch_first=True)
     lengths_batch = torch.tensor(lengths_batch)
     return padded_features, torch.tensor(labels_batch).cuda(), lengths_batch
+
 
 num_epochs = 1000
 num_classes = 5
@@ -81,11 +81,11 @@ if use_cuda:
     criterion = criterion.cuda()
 mean_accuracies = {}
 mean_f1_scores = {}
-m=0
-for smile, feature_size in get_all_audio_methods(["ComParE_2016"]): 
-    for model_name,model in(
-        ("LSTMModel_vl",LSTMModel_vl(feature_size, 20 ,num_classes)),
-        ("GRUModel_vl",GRUModel_vl(feature_size, 20 ,num_classes)),
+m = 0
+for smile, feature_size in get_all_audio_methods(["ComParE_2016"]):
+    for model_name, model in (
+        ("LSTMModel_vl", LSTMModel_vl(feature_size, 20, num_classes)),
+        ("GRUModel_vl", GRUModel_vl(feature_size, 20, num_classes)),
     ):
         train_features_dict = load_features(features_path, f"train_{smile.feature_set}_{smile.feature_level}")
         test_features_dict = load_features(features_path, f"test_{smile.feature_set}_{smile.feature_level}")
@@ -101,14 +101,13 @@ for smile, feature_size in get_all_audio_methods(["ComParE_2016"]):
         if os.path.exists(checkpoint_path):
             logger.info(f"skip: {checkpoint_path} exists")
             continue
-        
-        
+
         batch_size = 2048
-        batch_size = get_batch_size(feature_size,batch_size=batch_size)
-        
-        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,collate_fn=collate_fn)
-        #train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False,collate_fn=collate_fn)
+        batch_size = get_batch_size(feature_size, batch_size=batch_size)
+
+        train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+        # train_data_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_data_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
         if use_cuda:
             model = model.cuda()
@@ -118,7 +117,7 @@ for smile, feature_size in get_all_audio_methods(["ComParE_2016"]):
             f"{smile.feature_set}_{smile.feature_level}",
             train_data_loader,
             test_data_loader,
-            )
+        )
 
         os.makedirs(checkpoint_dir, exist_ok=True)
         torch.save(
