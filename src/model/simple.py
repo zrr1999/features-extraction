@@ -235,14 +235,14 @@ class LSTMModel_vl(nn.Module):
         self.fc2 = nn.Linear(128, num_classes)
 
     def forward(self, x, lengths):
-        # 对序列按长度进行排序（降序）
+        # 对序列按长度进行排序
         sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
         x_sorted = x[sorted_idx]
-        # 使用pack_padded_sequence对序列进行压缩
+        # 使用 pack_padded_sequence 对序列进行压缩
         packed_sequence = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True)
-        # 通过LSTM处理压缩后的序列2
+        # 通过 LSTM 处理压缩后的序列 2
         packed_output, _ = self.lstm(packed_sequence)
-        # 使用pad_packed_sequence对序列进行解压缩
+        # 使用 pad_packed_sequence 对序列进行解压缩
         output, _ = pad_packed_sequence(packed_output, batch_first=True)
         #print(output.shape,"---------output.shape")
         # 恢复原始排序
@@ -269,14 +269,14 @@ class GRUModel_vl(nn.Module):
         #self.fc = nn.Linear(hidden_size,num_classes)
 
     def forward(self, x, lengths):
-        # 对序列按长度进行排序（降序）
         sorted_lengths, sorted_idx = torch.sort(lengths, descending=True)
         x_sorted = x[sorted_idx]
-        # 使用pack_padded_sequence对序列进行压缩
+        # 使用 pack_padded_sequence 对序列进行压缩
         packed_sequence = pack_padded_sequence(x_sorted, sorted_lengths, batch_first=True)
-        # 通过GRU处理压缩后的序列
+        # 通过 GRU 处理压缩后的序列
         packed_output, _ = self.gru(packed_sequence)
-        # 使用pad_packed_sequence对序列进行解压缩
+        # 使用 pad_packed_sequence 对序列进行解压缩
+      
         output, _ = pad_packed_sequence(packed_output, batch_first=True)
         # 恢复原始排序
         _, original_idx = torch.sort(sorted_idx)

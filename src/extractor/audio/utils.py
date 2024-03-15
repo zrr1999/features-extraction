@@ -53,6 +53,7 @@ def get_all_audio_methods(ignore_methods: Sequence[str] = ()):
 
         yield opensmile.Smile(feature_set=feature_set, feature_level=feature_level), feature_size
 
+
 def get_batch_size(feature_size,batch_size):
     if feature_size < 30:
         batch_size = batch_size

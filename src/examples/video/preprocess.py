@@ -12,7 +12,7 @@ def emotion2int(emotion: str):
 
 
 meta = pd.read_csv(
-    "/home/zrr/workspace/emotion-reproduce/datasets/MELD.Raw/train_sent_emo.csv", sep=",", index_col=0, header=0
+    "/home/zrr/workspace/emotion-reproduce/datasets/MELD.Raw/test_sent_emo.csv", sep=",", index_col=0, header=0
 )
 
 mapping_method_path = {

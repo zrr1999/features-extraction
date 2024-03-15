@@ -53,6 +53,7 @@ def calculate_class_weights(data_loader: DataLoader, num_classes: int = 130):
     return class_weights
 
 
+
 def calculate_f1_score(model: nn.Module, data_loader: DataLoader):
     class_weights = calculate_class_weights(data_loader)
     num_classes = len(class_weights)
